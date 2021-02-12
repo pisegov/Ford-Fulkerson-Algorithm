@@ -1,0 +1,3 @@
+/home/pmiikhail/CLionProjects/Ford-Fulkerson-Algorithm/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/pmiikhail/CLionProjects/Ford-Fulkerson-Algorithm/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/pmiikhail/CLionProjects/Ford-Fulkerson-Algorithm/cmake-build-debug/CMakeFiles/Ford_Fulkerson_Algorithm.dir
