@@ -24,7 +24,9 @@ public:
 
     std::vector<T>& operator[](int number) {return adjMatrix[number];}
 
-    static Network<T> generateNetwork(int vertices);
+    static Network<T> generateNetwork(int vertices, int maxCapacity = 20);
+
+    void generateDigraphForNetwork();
 
     std::vector<int> depthFirstSearch();
 

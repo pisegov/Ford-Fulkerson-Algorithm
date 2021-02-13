@@ -12,23 +12,42 @@ Network<T>::Network(int _vertices): vertices(_vertices), target(_vertices - 1)
 }
 
 template <typename T>
-Network<T> Network<T>::generateNetwork(int vertices)
+Network<T> Network<T>::generateNetwork(int vertices, int maxCapacity)
 {
-    // Init an adjacency matrix
     Network<T> network(vertices);
+    network.generateDigraphForNetwork();
 
-    // Generate arcs coming from the source
-    const int minimalSourceArcs = 2;
+    //Filling the network with capacities
+    for (int i = 0; i < network.target; ++i)
+    {
+        for (int j = 0; j < vertices; ++j)
+        {
+            if (network[i][j])
+            {
+                network[i][j] = rand() % maxCapacity + 1;
+            }
+        }
+    }
+
+    return network;
+}
+
+template <typename T>
+void Network<T>::generateDigraphForNetwork()
+{
     int arcsCounter = 0;
     int iterationsCounter = 0;
-    while (arcsCounter < minimalSourceArcs && iterationsCounter < 1000)
+    int const minimalArcs = 1;
+
+    // Generation at least one arc from the source
+    while (arcsCounter < minimalArcs && iterationsCounter < 1000)
     {
         arcsCounter = 0;
         iterationsCounter = 0;
         for (int i = 1; i < vertices; ++i)
         {
-            network[0][i] = rand() % 2;
-            if (network[0][i])
+            adjMatrix[0][i] = rand() % 2;
+            if (adjMatrix[0][i])
             {
                 ++arcsCounter;
             }
@@ -36,40 +55,47 @@ Network<T> Network<T>::generateNetwork(int vertices)
         ++iterationsCounter;
     }
 
-    // Generate the rest of the network
-    for(int i = network.source + 1; i < network.target; i++)
+    // Generation of the rest of the network
+    for(int i = source + 1; i < target; i++)
     {
-        arcsCounter = 0;
         iterationsCounter = 0;
-        while (arcsCounter < 1 && iterationsCounter < 1000)
+        while (iterationsCounter < 1000)
         {
-            for (int j = network.source + 1; j < vertices; j++)
+            for (int j = source + 1; j < vertices; j++)
             {
-                if((network[i][j] == network[j][i]) && (i != j))
+                if((adjMatrix[i][j] == adjMatrix[j][i]) && (i != j))
                 {
-                    network[i][j] = rand() % 2;
-                    if (network[i][j])
-                    {
-                        ++arcsCounter;
-                    }
+                    adjMatrix[i][j] = rand() % 2;
                 }
             }
             ++iterationsCounter;
         }
     }
 
-    for (int i = 0; i < network.target; ++i)
+    //Checking if there are arcs to the target
+    bool noArcsToTarget = true;
+    for (int i = source; i < target; ++i)
     {
-        for (int j = 0; j < vertices; ++j)
+        if (adjMatrix[i][target])
         {
-            if (network[i][j])
-            {
-                network[i][j] = rand() % 20 + 1;
-            }
+            noArcsToTarget = false;
         }
     }
 
-    return network;
+    //If there are no arcs to the target, generation
+    iterationsCounter = 0;
+    while ( noArcsToTarget && iterationsCounter < 1000)
+    {
+        for (int i = source; i < target; i++)
+        {
+            adjMatrix[i][target] = rand() % 2;
+            if (adjMatrix[i][target])
+            {
+                noArcsToTarget = false;
+            }
+        }
+        ++iterationsCounter;
+    }
 }
 
 template<typename T>
