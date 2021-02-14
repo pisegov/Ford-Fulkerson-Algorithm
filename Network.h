@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <vector>
+#include <random>
+#include <ctime>
 
 template <typename T>
 class Network
@@ -10,6 +12,7 @@ class Network
     int source = 0;
     int target = 0;
     int vertices = 0;
+    int edges = 0;
     std::vector<std::vector<T>> adjMatrix;
 
 public:
@@ -17,6 +20,8 @@ public:
     explicit Network(int _vertices);
 
     int Vertices() const { return vertices; }
+
+    int Edges() const { return edges; }
 
     int Source() const {return source;}
 
@@ -33,6 +38,10 @@ public:
     T FordFulkersonMaxFlow();
 
     void printForTest();
+
+    void countEdges();
+
+    void doubleCapacities();
 };
 
 #endif //FORD_FULKERSON_MAX_FLOW_NETWORK_H

@@ -16,6 +16,10 @@ Network<T> Network<T>::generateNetwork(int vertices, int maxCapacity)
 {
     Network<T> network(vertices);
     network.generateDigraphForNetwork();
+    network.countEdges();
+
+    std::mt19937 gen(time(nullptr));
+    std::uniform_int_distribution<> uid(1, maxCapacity);
 
     //Filling the network with capacities
     for (int i = 0; i < network.target; ++i)
@@ -24,7 +28,7 @@ Network<T> Network<T>::generateNetwork(int vertices, int maxCapacity)
         {
             if (network[i][j])
             {
-                network[i][j] = rand() % maxCapacity + 1;
+                network[i][j] = uid(gen);
             }
         }
     }
@@ -39,6 +43,9 @@ void Network<T>::generateDigraphForNetwork()
     int iterationsCounter = 0;
     int const minimalArcs = 1;
 
+    std::mt19937 gen(time(nullptr));
+    std::uniform_int_distribution<> uid(0, 1);
+
     // Generation at least one arc from the source
     while (arcsCounter < minimalArcs && iterationsCounter < 1000)
     {
@@ -46,7 +53,7 @@ void Network<T>::generateDigraphForNetwork()
         iterationsCounter = 0;
         for (int i = 1; i < vertices; ++i)
         {
-            adjMatrix[0][i] = rand() % 2;
+            adjMatrix[0][i] = uid(gen);
             if (adjMatrix[0][i])
             {
                 ++arcsCounter;
@@ -58,17 +65,12 @@ void Network<T>::generateDigraphForNetwork()
     // Generation of the rest of the network
     for(int i = source + 1; i < target; i++)
     {
-        iterationsCounter = 0;
-        while (iterationsCounter < 1000)
+        for (int j = source + 1; j < vertices; j++)
         {
-            for (int j = source + 1; j < vertices; j++)
+            if((adjMatrix[i][j] == adjMatrix[j][i]) && (i != j))
             {
-                if((adjMatrix[i][j] == adjMatrix[j][i]) && (i != j))
-                {
-                    adjMatrix[i][j] = rand() % 2;
-                }
+                adjMatrix[i][j] = uid(gen);
             }
-            ++iterationsCounter;
         }
     }
 
@@ -88,7 +90,7 @@ void Network<T>::generateDigraphForNetwork()
     {
         for (int i = source; i < target; i++)
         {
-            adjMatrix[i][target] = rand() % 2;
+            adjMatrix[i][target] = uid(gen);
             if (adjMatrix[i][target])
             {
                 noArcsToTarget = false;
@@ -139,7 +141,8 @@ std::vector<int> Network<T>::depthFirstSearch() {
 template<typename T>
 T Network<T>::FordFulkersonMaxFlow()
 {
-    std::vector<int> path = depthFirstSearch();
+    Network<T> network = *this;
+    std::vector<int> path = network.depthFirstSearch();
 
     T maxFlow = 0;
     while (!path.empty())
@@ -147,21 +150,21 @@ T Network<T>::FordFulkersonMaxFlow()
         T minCapacity = 1000;
         for (int i = 0; i < path.size() - 1; ++i)
         {
-            if(adjMatrix[path[i]][path[i + 1]] < minCapacity)
+            if(network[path[i]][path[i + 1]] < minCapacity)
             {
-                minCapacity = adjMatrix[path[i]][path[i + 1]];
+                minCapacity = network[path[i]][path[i + 1]];
             }
         }
 
         for (int i = 0; i < path.size() - 1; ++i)
         {
-            adjMatrix[path[i]][path[i + 1]] -= minCapacity;
-            adjMatrix[path[i + 1]][path[i]] += minCapacity;
+            network[path[i]][path[i + 1]] -= minCapacity;
+            network[path[i + 1]][path[i]] += minCapacity;
         }
 
         maxFlow += minCapacity;
 
-        path = depthFirstSearch();
+        path = network.depthFirstSearch();
     }
 
     return maxFlow;
@@ -186,8 +189,9 @@ std::ostream &operator<<(std::ostream &stream, Network<T> network)
 }
 
 template<typename T>
-void Network<T>::printForTest() {
-    int edges = 0;
+void Network<T>::countEdges()
+{
+    int edgesCounter = 0;
 
     for (int i = 0; i < vertices; ++i)
     {
@@ -195,10 +199,16 @@ void Network<T>::printForTest() {
         {
             if(adjMatrix[i][j])
             {
-                edges++;
+                edgesCounter++;
             }
         }
     }
+
+    edges = edgesCounter;
+}
+
+template<typename T>
+void Network<T>::printForTest() {
 
     std::cout << vertices << " " << edges << std::endl;
     for (int i = 0; i < vertices; ++i)
@@ -206,6 +216,17 @@ void Network<T>::printForTest() {
         for (int j = 0; j < vertices; ++j)
         {
             if(adjMatrix[i][j])  std::cout << i << " " << j << " " << adjMatrix[i][j] << std::endl;
+        }
+    }
+}
+
+template<typename T>
+void Network<T>::doubleCapacities() {
+    for (int i = 0; i < vertices; ++i)
+    {
+        for (int j = 0; j < vertices; ++j)
+        {
+            adjMatrix[i][j] *= 2;
         }
     }
 }
