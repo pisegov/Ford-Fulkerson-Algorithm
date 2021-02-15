@@ -1,5 +1,7 @@
 #include "Network.h"
 
+#define INF 1e9
+
 template<typename T>
 Network<T>::Network(int _vertices): vertices(_vertices), target(_vertices - 1)
 {
@@ -147,7 +149,7 @@ T Network<T>::FordFulkersonMaxFlow()
     T maxFlow = 0;
     while (!path.empty())
     {
-        T minCapacity = 1000;
+        T minCapacity = INF;
         for (int i = 0; i < path.size() - 1; ++i)
         {
             if(network[path[i]][path[i + 1]] < minCapacity)
